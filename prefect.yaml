@@ -2,26 +2,27 @@
 name: Mover
 prefect-version: 3.4.21
 
-# build section allows you to manage and build docker images
-build: null
+# 1. BUILD: Create the Docker image
+build:
+  - prefect_docker.deployments.steps.build_docker_image:
+      id: build-image
+      requires: prefect-docker>=0.3.0
+      image_name: csizachary/prefect-mover
+      tag: latest
+      dockerfile: auto # uses the Dockerfile we created
 
-# push section allows you to manage if and how this project is uploaded to remote locations
-push: null
+# 2. PUSH: Upload the image to Docker Hub
+push:
+  - prefect_docker.deployments.steps.push_docker_image:
+      requires: prefect-docker>=0.3.0
+      image_name: "{{ build-image.image_name }}"
+      tag: "{{ build-image.tag }}"
 
-# pull section allows you to provide instructions for cloning this project in remote locations
+# 3. PULL: We don't need Git anymore because the code is BAKED into the image!
 pull:
-  - prefect.deployments.steps.git_clone:
-      repository: https://github.com/CSI-Zachary/Mover.git
-      branch: PrefectEdit
-      # Ensure this block exists in your Prefect UI!
-      credentials: "{{ prefect.blocks.github-credentials.2026-prefect }}"
-  
-  # CRITICAL: This sets the working directory to the folder we just cloned.
-  # Without this, the worker might try to run the file from the wrong location.
   - prefect.deployments.steps.set_working_directory:
-      directory: .
+      directory: /opt/prefect
 
-# the deployments section allows you to provide configuration for deploying flows
 deployments:
   - name: mover
     version: null
@@ -29,11 +30,11 @@ deployments:
     description: "Moves files based on logic"
     schedule: {}
     flow_name: mover
-    # Ensure mover.py is at the root of your repo. 
-    # If it is in a subfolder (e.g., src/mover.py), change to src/mover.py:mover
     entrypoint: mover.py:mover
     parameters: {}
     work_pool:
-      name: mover_pool
-      work_queue_name: default # usually 'default' unless you specifically made a 'mover_queue'
-      job_variables: {}
+      name: mover_docker_pool
+      work_queue_name: default
+      # We tell the worker to use the image we just built
+      job_variables:
+        image: "{{ build-image.image }}"
