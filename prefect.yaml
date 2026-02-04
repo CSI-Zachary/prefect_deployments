@@ -9,7 +9,7 @@ build:
       requires: prefect-docker>=0.3.0
       image_name: csizachary/prefect-mover
       tag: latest
-      dockerfile: auto # uses the Dockerfile we created
+      dockerfile: Dockerfile
 
 # 2. PUSH: Upload the image to Docker Hub
 push:
