@@ -15,7 +15,7 @@ push: null
 # pull section allows you to provide instructions for cloning this project in remote locations
 pull:
 - prefect.deployments.steps.git_clone:
-    repository: git@github.com:CSI-Zachary/Mover.git
+    repository: https://github.com/CSI-Zachary/Mover.git
     branch: PrefectEdit
     credentials: "{{ prefect.blocks.github-credentials.2026-prefect }}"
 
