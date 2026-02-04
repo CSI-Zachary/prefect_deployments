@@ -26,8 +26,8 @@ deployments:
   tags: []
   description: null
   schedule: {}
-  flow_name: mover
-  entrypoint: flows/mover.py:mover
+  flow_name: null
+  entrypoint: mover.py:mover
   parameters: {}
   work_pool:
     name: mover_pool
